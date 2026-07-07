@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>玉国国际金融公司全球通</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Microsoft Yahei", sans-serif;
+    }
+    body {
+      background: #050508;
+      background-image: radial-gradient(#1a1030 0.5px, transparent 0.5px);
+      background-size: 20px 20px;
+      color: #fff;
+      min-height: 100vh;
+    }
+    /* 磨砂玻璃通用卡片 */
+    .glass-card {
+      background: rgba(20, 20, 30, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.18);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    /* 页面切换控制 */
+    .page {
+      display: none;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .page.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    /* 首页样式 */
+    #page-home {
+      gap: 24px;
+      text-align: center;
+    }
+    .main-title {
+      font-size: 48px;
+      color: #d4af37;
+      font-weight: bold;
+      letter-spacing: 4px;
+    }
+    .location-tip {
+      font-size: 16px;
+      color: #c9c9d8;
+    }
+    .gold-btn {
+      padding: 14px 48px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #b8860b, #d4af37);
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 12px;
+    }
+    .gold-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 22px rgba(212, 175, 55, 0.55);
+    }
+    /* 登录页 */
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 30px;
+    }
+    .login-title {
+      text-align: center;
+      font-size: 26px;
+      color: #d4af37;
+      margin-bottom: 30px;
+    }
+    .input-item {
+      margin-bottom: 20px;
+    }
+    .input-item label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ddd;
+    }
+    .input-item input {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(212,175,55,0.2);
+      background: rgba(30,30,45,0.6);
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+    .input-item input:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 8px rgba(212,175,55,0.3);
+    }
+    /* 凭证管理页面 */
+    .manage-wrap {
+      width: 100%;
+      max-width: 1000px;
+      padding: 30px;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .table-box {
+      width: 100%;
+      border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th,td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    th {
+      background: rgba(212,175,55,0.12);
+      color: #d4af37;
+    }
+    /* 全局弹窗遮罩 */
+    .mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .mask.show {
+      display: flex;
+    }
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      padding: 30px;
+    }
+    .modal-title {
+      font-size: 22px;
+      color: #d4af37;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 16px;
+      margin-top: 30px;
+    }
+    .modal-btns button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn-cancel {
+      background: #333;
+      color: #fff;
+    }
+    /* 转盘弹窗 */
+    .turntable-box {
+      text-align: center;
+    }
+    #turntable {
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      position: relative;
+      overflow: hidden;
+      border: 6px solid #d4af37;
+      transition: transform 4s cubic-bezier(0.2,0,0.2,1);
+    }
+    .turntable-item {
+      width: 50%;
+      height: 50%;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform-origin: bottom left;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #000;
+      font-weight: bold;
+    }
+    /* 支付弹窗图片 */
+    .pay-img {
+      width: 260px;
+      margin: 20px auto;
+      border-radius: 12px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- 首页 -->
+  <div id="page-home" class="page active">
+    <h1 class="main-title">玉国国际金融公司全球通</h1>
+    <p class="location-tip">您当前所在的位置为澳门</p>
+    <button class="gold-btn" onclick="switchPage('page-login')">登录</button>
+  </div>
+
+  <!-- 登录页 -->
+  <div id="page-login" class="page">
+    <div class="glass-card login-box">
+      <h2 class="login-title">账号登录</h2>
+      <div class="input-item">
+        <label>账号</label>
+        <input id="user-acc" placeholder="请输入账号">
+      </div>
+      <div class="input-item">
+        <label>密码</label>
+        <input id="user-pwd" type="password" placeholder="请输入密码">
+      </div>
+      <button class="gold-btn" style="width:100%" onclick="login()">确认登录</button>
+    </div>
+  </div>
+
+  <!-- 凭证管理页 -->
+  <div id="page-manage" class="page">
+    <div class="glass-card manage-wrap">
+      <div class="top-bar">
+        <h2 style="color:#d4af37">凭证记录列表</h2>
+        <button class="gold-btn" onclick="openAddModal()">增加凭证记录</button>
+      </div>
+      <div class="table-box">
+        <table id="record-table">
+          <thead>
+            <tr>
+              <th>店铺名称</th>
+              <th>付款金额</th>
+              <th>抽奖折扣</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增凭证弹窗 -->
+  <div id="mask-add" class="mask">
+    <div class="glass-card modal">
+      <h3 class="modal-title">新增凭证</h3>
+      <div class="input-item">
+        <label>店铺名称</label>
+        <input id="shop-name" placeholder="输入店铺名称">
+      </div>
+      <div class="input-item">
+        <label>付款金额（必填）</label>
+        <input id="pay-money" placeholder="必须填写金额才可提交">
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeMask('mask-add')">取消</button>
+        <button class="gold-btn" onclick="submitRecord()">确认提交</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 抽奖转盘弹窗 -->
+  <div id="mask-turntable" class="mask">
+    <div class="glass-card modal turntable-box">
+      <h3 class="modal-title">幸运抽奖</h3>
+      <div id="turntable"></div>
+      <p id="lottery-result" style="font-size:20px;color:#d4af37;margin:15px 0"></p>
+      <button class="gold-btn" onclick="closeMask('mask-turntable')">确定</button>
+    </div>
+  </div>
+
+  <!-- 微信支付弹窗 -->
+  <div id="mask-pay" class="mask">
+    <div class="glass-card modal" style="text-align:center">
+      <h3 class="modal-title">微信支付</h3>
+      <img class="pay-img" id="wx-img" src="" alt="微信收款码">
+      <p>扫码完成支付</p>
+      <button class="gold-btn" style="margin-top:20px" onclick="closeMask('mask-pay')">关闭</button>
+    </div>
+  </div>
+
+  <script>
+    // GitHub Pages 静态页面切换（无后端纯前端）
+    function switchPage(pageId) {
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+      document.getElementById(pageId).classList.add('active')
+    }
+
+    // 关闭弹窗
+    function closeMask(maskId) {
+      document.getElementById(maskId).classList.remove('show')
+    }
+    // 打开弹窗
+    function openMask(maskId) {
+      document.getElementById(maskId).classList.add('show')
+    }
+
+    // 登录校验：固定账号谭绣云，密码484142
+    function login() {
+      let acc = document.getElementById('user-acc').value.trim()
+      let pwd = document.getElementById('user-pwd').value.trim()
+      if(acc !== "谭绣云" || pwd !== "484142"){
+        alert("账号或密码错误！正确账号：谭绣云，密码：484142")
+        return
+      }
+      switchPage('page-manage')
+    }
+
+    // 打开新增凭证弹窗
+    function openAddModal() {
+      openMask('mask-add')
+      document.getElementById('shop-name').value = ''
+      document.getElementById('pay-money').value = ''
+    }
+
+    // 凭证数据存储
+    let recordList = []
+    let nowEditIndex = null
+
+    // 提交凭证，强制校验店铺和金额都不能为空
+    function submitRecord() {
+      let shop = document.getElementById('shop-name').value.trim()
+      let money = document.getElementById('pay-money').value.trim()
+      if(!shop){
+        alert("请填写店铺名称！")
+        return
+      }
+      if(!money){
+        alert("付款金额为必填项，请填写金额！")
+        return
+      }
+      closeMask('mask-add')
+      // 新增空白记录，抽奖后回填折扣
+      recordList.push({shop, money, discount: '待抽奖'})
+      renderTable()
+      nowEditIndex = recordList.length - 1
+      createTurntable()
+      openMask('mask-turntable')
+    }
+
+    // 奖项配置
+    const prizeList = [
+      {text:"一等奖 6折", deg:0},
+      {text:"二等奖 7折", deg:60},
+      {text:"三等奖 8折", deg:120},
+      {text:"四等奖 9折", deg:180},
+      {text:"五等奖 96折", deg:240},
+      {text:"不打折", deg:300}
+    ]
+    // 渲染转盘
+    function createTurntable() {
+      let wrap = document.getElementById('turntable')
+      wrap.innerHTML = ''
+      wrap.style.transform = 'rotate(0deg)'
+      document.getElementById('lottery-result').innerText = ''
+      const colors = ['#ffd700','#ffc107','#ffaa00','#ff9500','#ff7700','#ff5500']
+      prizeList.forEach((item,i)=>{
+        let div = document.createElement('div')
+        div.className = 'turntable-item'
+        div.style.background = colors[i]
+        div.style.transform = `rotate(${item.deg}deg)`
+        div.innerText = item.text
+        wrap.appendChild(div)
+      })
+      // 随机旋转抽奖
+      let randomDeg = 1800 + Math.floor(Math.random()*2160)
+      wrap.style.transform = `rotate(${randomDeg}deg)`
+      setTimeout(()=>{
+        let final
